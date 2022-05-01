@@ -1,0 +1,28 @@
+Sort  (cost=134453.80..135266.30 rows=325000 width=24) (actual time=2925.546..2979.739 rows=400153 loops=1)
+   Sort Key: c.id
+   Sort Method: external merge  Disk: 13328kB
+   ->  Nested Loop Left Join  (cost=27096.72..98032.42 rows=325000 width=24) (actual time=371.168..2745.136 rows=400153 loops=1)
+         ->  Hash Right Join  (cost=27096.72..61490.72 rows=325000 width=28) (actual time=371.146..1152.791 rows=400153 loops=1)
+               Hash Cond: (pu.id = ppl.purchase_id)
+               ->  Seq Scan on purchases pu  (cost=0.00..15406.00 rows=1000000 width=16) (actual time=0.011..91.808 rows=1000000 loops=1)
+               ->  Hash  (cost=20812.22..20812.22 rows=325000 width=28) (actual time=370.695..370.699 rows=400153 loops=1)
+                     Buckets: 65536  Batches: 8  Memory Usage: 3645kB
+                     ->  Nested Loop Left Join  (cost=341.94..20812.22 rows=325000 width=28) (actual time=4.452..234.609 rows=400153 loops=1)
+                           ->  Hash Right Join  (cost=1.66..3.34 rows=13 width=20) (actual time=0.053..0.140 rows=16 loops=1)
+                                 Hash Cond: (p.type = s.type)
+                                 ->  Seq Scan on products p  (cost=0.00..1.40 rows=40 width=35) (actual time=0.006..0.024 rows=40 loops=1)
+                                 ->  Hash  (cost=1.50..1.50 rows=13 width=36) (actual time=0.040..0.041 rows=16 loops=1)
+                                       Buckets: 1024  Batches: 1  Memory Usage: 9kB
+                                       ->  Seq Scan on sales s  (cost=0.00..1.50 rows=13 width=36) (actual time=0.021..0.029 rows=16 loops=1)
+                                             Filter: (discount > '0'::double precision)
+                                             Rows Removed by Filter: 24
+                           ->  Bitmap Heap Scan on purchases_products_list ppl  (cost=340.28..1350.68 rows=25000 width=16) (actual time=1.874..11.264 rows=25010 loops=16)
+                                 Recheck Cond: (p.id_p = product_id)
+                                 Heap Blocks: exact=100037
+                                 ->  Bitmap Index Scan on fki_ppdlfkey  (cost=0.00..334.03 rows=25000 width=0) (actual time=1.112..1.112 rows=25010 loops=16)
+                                       Index Cond: (product_id = p.id_p)
+         ->  Index Scan using customers_id_idx on customers c  (cost=0.00..0.11 rows=1 width=8) (actual time=0.004..0.004 rows=1 loops=400153)
+               Index Cond: (id = pu.customer_id)
+               Rows Removed by Index Recheck: 0
+ Planning Time: 0.950 ms
+ Execution Time: 3003.263 ms

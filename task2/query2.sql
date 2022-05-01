@@ -1,0 +1,1 @@
+select c.id, p.id_p, p.price * s.discount from sales s full outer join products p on s.type = p.type left join purchases_products_list ppl ON p.id_p = ppl.product_id left join purchases pu on ppl.purchase_id = pu.id left join customers c on pu.customer_id = c.id where s.discount > 0 ORDER BY c.id;

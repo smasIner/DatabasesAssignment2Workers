@@ -1,0 +1,32 @@
+QUERY PLAN                                                                                    
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Sort  (cost=1692223.17..1715785.67 rows=9425000 width=24) (actual time=3486.792..3537.202 rows=400153 loops=1)
+   Sort Key: c.id
+   Sort Method: external merge  Disk: 13328kB
+   ->  Hash Left Join  (cost=150838.47..213853.29 rows=9425000 width=24) (actual time=2870.842..3317.942 rows=400153 loops=1)
+         Hash Cond: (s.type = p.type)
+         ->  Seq Scan on sales s  (cost=0.00..24.12 rows=377 width=36) (actual time=0.019..0.031 rows=16 loops=1)
+               Filter: (discount > '0'::double precision)
+               Rows Removed by Filter: 24
+         ->  Hash  (cost=129548.47..129548.47 rows=1000000 width=43) (actual time=2870.761..2870.767 rows=1000000 loops=1)
+               Buckets: 65536 (originally 65536)  Batches: 128 (originally 32)  Memory Usage: 6094kB
+               ->  Hash Right Join  (cost=68065.32..129548.47 rows=1000000 width=43) (actual time=998.582..2612.941 rows=1000000 loops=1)
+                     Hash Cond: (ppl.product_id = p.id_p)
+                     ->  Hash Right Join  (cost=68063.43..126643.45 rows=1000000 width=16) (actual time=998.485..2413.142 rows=1000000 loops=1)
+                           Hash Cond: (pu.id = ppl.purchase_id)
+                           ->  Hash Right Join  (cost=32789.43..74095.44 rows=1000000 width=16) (actual time=666.484..1407.786 rows=1000000 loops=1)
+                                 Hash Cond: (c.id = pu.customer_id)
+                                 ->  Index Only Scan using fki_blue on customers c  (cost=0.42..25984.42 rows=1000000 width=8) (actual time=0.019..105.438 rows=1000000 loops=1)
+                                       Heap Fetches: 52
+                                 ->  Hash  (cost=15406.00..15406.00 rows=1000000 width=16) (actual time=665.281..665.282 rows=1000000 loops=1)
+                                       Buckets: 131072  Batches: 16  Memory Usage: 3961kB
+                                       ->  Seq Scan on purchases pu  (cost=0.00..15406.00 rows=1000000 width=16) (actual time=0.013..365.831 rows=1000000 loops=1)
+                           ->  Hash  (cost=17891.00..17891.00 rows=1000000 width=16) (actual time=330.442..330.443 rows=1000000 loops=1)
+                                 Buckets: 131072  Batches: 16  Memory Usage: 3961kB
+                                 ->  Seq Scan on purchases_products_list ppl  (cost=0.00..17891.00 rows=1000000 width=16) (actual time=0.014..126.374 rows=1000000 loops=1)
+                     ->  Hash  (cost=1.40..1.40 rows=40 width=35) (actual time=0.037..0.038 rows=40 loops=1)
+                           Buckets: 1024  Batches: 1  Memory Usage: 11kB
+                           ->  Seq Scan on products p  (cost=0.00..1.40 rows=40 width=35) (actual time=0.009..0.019 rows=40 loops=1)
+ Planning Time: 1.383 ms
+ Execution Time: 3563.373 ms
+(29 rows)

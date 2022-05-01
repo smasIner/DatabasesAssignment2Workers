@@ -1,0 +1,13 @@
+QUERY PLAN                                                    
+------------------------------------------------------------------------------------------------------------------
+ Hash Join  (cost=1.90..28.19 rows=75 width=102) (actual time=2.179..2.198 rows=16 loops=1)
+   Hash Cond: (sales.type = products.type)
+   ->  Seq Scan on sales  (cost=0.00..24.12 rows=377 width=32) (actual time=0.026..0.035 rows=16 loops=1)
+         Filter: (discount > '0'::double precision)
+         Rows Removed by Filter: 24
+   ->  Hash  (cost=1.40..1.40 rows=40 width=121) (actual time=2.127..2.128 rows=40 loops=1)
+         Buckets: 1024  Batches: 1  Memory Usage: 14kB
+         ->  Seq Scan on products  (cost=0.00..1.40 rows=40 width=121) (actual time=2.073..2.100 rows=40 loops=1)
+ Planning Time: 0.168 ms
+ Execution Time: 2.946 ms
+(10 rows)
